@@ -1,0 +1,1 @@
+Adsorption isotherms of CO2 at 298.1 K were fitted to non-linear analytical models, with the Dual-Site Langmuir model exhibiting optimal thermodynamic fidelity (R^2 = 1.0000, RMSE = 0.0000, AIC = -706.9). Overall adsorption simulation quality achieved certification status: PASS.

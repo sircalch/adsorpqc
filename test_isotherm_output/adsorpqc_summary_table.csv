@@ -1,0 +1,11 @@
+Parameter,Value,Status
+Framework & Adsorbate,Mg-MOF-74 / CO2,PASS
+Simulation Engine,User Input,PASS
+Temperature,298.15 K,PASS
+Optimal Isotherm Model,"Dual-Site Langmuir (R^2 = 1.0000, RMSE = 0.0000)",PASS
+Fit Param: q1,6.2000e+00,PASS
+Fit Param: K1,1.5000e+01,PASS
+Fit Param: q2,3.5000e+00,PASS
+Fit Param: K2,2.0000e-01,PASS
+Fit Param: q_sat_total,9.7000e+00,PASS
+Henry Constant (K_H),2.8109e+01 mol/kg/Pa (R^2 = 0.874),PASS

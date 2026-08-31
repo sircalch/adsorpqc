@@ -1,0 +1,18 @@
+Parameter,Value,Status
+Framework & Adsorbate,Mg-MOF-74 / CO2,PASS
+Simulation Engine,RASPA 2.0,PASS
+Temperature,298.15 K,PASS
+GCMC Total Cycles,4000 cycles,PASS
+Optimal Burn-in Cutoff,1500 cycles (37.5%),PASS
+Production Loading,"8.427 [8.413, 8.441] (95% CI)",PASS
+Production Loading Drift,1.30%,PASS
+Independent Samples (N_eff),N_eff = 2372 (tau_int = 0.5 cycles),PASS
+Optimal Isotherm Model,"Dual-Site Langmuir (R^2 = 0.9996, RMSE = 0.0482)",PASS
+Fit Param: q1,5.9840e+00,PASS
+Fit Param: K1,1.6992e+01,PASS
+Fit Param: q2,3.4948e+00,PASS
+Fit Param: K2,2.4469e-01,PASS
+Fit Param: q_sat_total,9.4788e+00,PASS
+Henry Constant (K_H),2.8256e+01 mol/kg/Pa (R^2 = 0.848),PASS
+Isosteric Heat (q_st),40.50 kJ/mol,PASS
+IAST Selectivity S_{A/B},"258.56 [141.68, 344.80] (95% CI)",PASS

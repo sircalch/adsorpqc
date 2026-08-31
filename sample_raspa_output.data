@@ -1,0 +1,17 @@
+
+================================================================================
+                                R A S P A - 2 . 0
+================================================================================
+
+Framework name: Mg-MOF-74
+Component 0 [CO2]
+Temperature: 298.15 [K]
+Pressure: 100000.000000 [Pa]
+Number of initialization cycles: 2000
+Number of production cycles: 10000
+
+Average loading absolute [mol/kg framework]   8.45120 +/- 0.05120
+Average loading absolute [milligram/gram framework]   371.93000 +/- 2.25000
+Average loading absolute [molecules/unit cell]   12.35000 +/- 0.25000
+
+Heat of adsorption: 38.54 +/- 0.45 [kJ/mol]

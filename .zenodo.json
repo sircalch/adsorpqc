@@ -1,0 +1,25 @@
+{
+  "title": "AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations",
+  "description": "An open-source scientific toolkit for rigorous quality assurance, automated GCMC equilibration/burn-in detection, non-linear isotherm model fitting (Langmuir, Dual-site Langmuir, Sips, Toth, Freundlich, BET), Henry coefficient (K_H), isosteric heat of adsorption (q_st), and IAST mixture selectivity with bootstrap confidence intervals.",
+  "creators": [
+    {
+      "name": "Monreal-Hernández, Andre",
+      "affiliation": "Doctoral Research Group"
+    }
+  ],
+  "access_right": "open",
+  "license": "MIT",
+  "keywords": [
+    "adsorption",
+    "GCMC",
+    "RASPA",
+    "MOFs",
+    "isotherms",
+    "burn-in detection",
+    "IAST selectivity",
+    "isosteric heat",
+    "computational materials science",
+    "scientific software"
+  ],
+  "upload_type": "software"
+}
