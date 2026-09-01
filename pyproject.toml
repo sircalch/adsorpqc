@@ -8,7 +8,9 @@ version = "1.0.0"
 description = "Automated Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Toolkit for Adsorption Simulations in Nanoporous Materials"
 readme = "README.md"
 authors = [
-    { name = "Andres Monreal-Hernández", email = "amonreal@example.com" }
+    { name = "Andrés Monreal-Hernández", email = "andres.monreal@ues.mx" },
+    { name = "Sara Lizbeth Franco-Amaya" },
+    { name = "Carlos Ivanhoe Martínez-Osorio" }
 ]
 license = { text = "MIT" }
 keywords = [

@@ -2,8 +2,17 @@ cff-version: 1.2.0
 message: "If you use AdsorpQC in your research to validate adsorption simulations, detect GCMC burn-in, fit isotherms, or calculate IAST selectivities, please cite it as below."
 authors:
   - family-names: "Monreal-Hernández"
-    given-names: "Andres"
+    given-names: "Andrés"
     orcid: "https://orcid.org/0009-0009-1207-8597"
+    affiliation: "Universidad Estatal de Sonora"
+  - family-names: "Franco-Amaya"
+    given-names: "Sara Lizbeth"
+    orcid: "https://orcid.org/0009-0005-0272-0241"
+    affiliation: "Doctorado en Nanotecnología, Universidad de Sonora"
+  - family-names: "Martínez-Osorio"
+    given-names: "Carlos Ivanhoe"
+    orcid: "https://orcid.org/0009-0003-7872-4965"
+    affiliation: "Doctorado en Ciencia de Materiales, Universidad de Sonora"
 title: "AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations"
 version: 1.0.0
 date-released: 2026-08-31
