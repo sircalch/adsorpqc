@@ -3,7 +3,8 @@
   "description": "An open-source scientific toolkit for rigorous quality assurance, automated GCMC equilibration/burn-in detection, non-linear isotherm model fitting (Langmuir, Dual-site Langmuir, Sips, Toth, Freundlich, BET), Henry coefficient (K_H), isosteric heat of adsorption (q_st), and IAST mixture selectivity with bootstrap confidence intervals.",
   "creators": [
     {
-      "name": "Monreal-Hernández, Andre",
+      "name": "Monreal-Hernández, Andres",
+      "orcid": "0009-0009-1207-8597",
       "affiliation": "Doctoral Research Group"
     }
   ],
