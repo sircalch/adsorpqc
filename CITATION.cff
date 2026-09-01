@@ -1,4 +1,4 @@
-cff-version: 1.2.0
+﻿cff-version: 1.2.0
 message: "If you use AdsorpQC in your research to validate adsorption simulations, detect GCMC burn-in, fit isotherms, or calculate IAST selectivities, please cite it as below."
 authors:
   - family-names: "Monreal-Hernández"
@@ -7,8 +7,8 @@ authors:
 title: "AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations"
 version: 1.0.0
 date-released: 2026-08-31
-url: "https://github.com/amonreal/adsorpqc"
-repository-code: "https://github.com/amonreal/adsorpqc"
+url: "https://github.com/sircalch/adsorpqc"
+repository-code: "https://github.com/sircalch/adsorpqc"
 keywords:
   - "adsorption"
   - "GCMC"
@@ -20,3 +20,4 @@ keywords:
   - "isosteric heat"
   - "reproducibility"
 license: MIT
+

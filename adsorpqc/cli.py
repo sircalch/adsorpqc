@@ -1,4 +1,4 @@
-"""
+﻿"""
 Command Line Interface (CLI) for AdsorpQC.
 """
 
@@ -215,11 +215,11 @@ def print_citation():
   year = {2026},
   version = {1.0.0},
   publisher = {Zenodo},
-  url = {https://github.com/amonreal/adsorpqc}
+  url = {https://github.com/sircalch/adsorpqc}
 }"""
     print("\nIf you use AdsorpQC in your publications, please cite:\n")
     print("APA Style:")
-    print("Monreal-Hernández, A. (2026). AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations (v1.0.0). Zenodo. https://github.com/amonreal/adsorpqc\n")
+    print("Monreal-Hernández, A. (2026). AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations (v1.0.0). Zenodo. https://github.com/sircalch/adsorpqc\n")
     print("BibTeX:")
     print(bib)
     print()
@@ -271,3 +271,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

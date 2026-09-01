@@ -1,6 +1,6 @@
-# AdsorpQC
+﻿# AdsorpQC
 
-[![CI](https://github.com/amonreal/adsorpqc/actions/workflows/test.yml/badge.svg)](https://github.com/amonreal/adsorpqc/actions)
+[![CI](https://github.com/sircalch/adsorpqc/actions/workflows/test.yml/badge.svg)](https://github.com/sircalch/adsorpqc/actions)
 [![PyPI version](https://img.shields.io/pypi/v/adsorpqc.svg?color=blue)](https://pypi.org/project/adsorpqc/)
 [![Python versions](https://img.shields.io/pypi/pyversions/adsorpqc.svg)](https://pypi.org/project/adsorpqc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -71,7 +71,7 @@ pip install adsorpqc
 
 ### From Source
 ```bash
-git clone https://github.com/amonreal/adsorpqc.git
+git clone https://github.com/sircalch/adsorpqc.git
 cd adsorpqc
 pip install -e .[dev]
 ```
@@ -139,7 +139,7 @@ If you use AdsorpQC in your publications, please cite:
   year = {2026},
   version = {1.0.0},
   publisher = {Zenodo},
-  url = {https://github.com/amonreal/adsorpqc}
+  url = {https://github.com/sircalch/adsorpqc}
 }
 ```
 
@@ -148,3 +148,4 @@ If you use AdsorpQC in your publications, please cite:
 ## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+

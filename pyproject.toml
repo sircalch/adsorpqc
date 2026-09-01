@@ -1,4 +1,4 @@
-[build-system]
+﻿[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -62,12 +62,13 @@ dev = [
 adsorpqc = "adsorpqc.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/amonreal/adsorpqc"
-Documentation = "https://github.com/amonreal/adsorpqc#readme"
-Repository = "https://github.com/amonreal/adsorpqc.git"
-"Bug Tracker" = "https://github.com/amonreal/adsorpqc/issues"
-Changelog = "https://github.com/amonreal/adsorpqc/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/sircalch/adsorpqc"
+Documentation = "https://github.com/sircalch/adsorpqc#readme"
+Repository = "https://github.com/sircalch/adsorpqc.git"
+"Bug Tracker" = "https://github.com/sircalch/adsorpqc/issues"
+Changelog = "https://github.com/sircalch/adsorpqc/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["adsorpqc*"]
+
 
