@@ -67,3 +67,7 @@ Documentation = "https://github.com/amonreal/adsorpqc#readme"
 Repository = "https://github.com/amonreal/adsorpqc.git"
 "Bug Tracker" = "https://github.com/amonreal/adsorpqc/issues"
 Changelog = "https://github.com/amonreal/adsorpqc/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+include = ["adsorpqc*"]
+
