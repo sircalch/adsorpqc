@@ -39,7 +39,7 @@ def run_demo(output_dir: str = "adsorpqc_demo_output"):
     os.makedirs(output_dir, exist_ok=True)
     
     metadata = {
-        "engine": "RASPA 2.0",
+        "engine": "SYNTHETIC DEMO DATA (RASPA-like GCMC output; not a real simulation)",
         "framework": "Mg-MOF-74",
         "adsorbate": "CO2",
         "temperature_k": 298.15,

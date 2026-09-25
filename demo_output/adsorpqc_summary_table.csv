@@ -1,6 +1,6 @@
 Parameter,Value,Status
 Framework & Adsorbate,Mg-MOF-74 / CO2,PASS
-Simulation Engine,RASPA 2.0,PASS
+Simulation Engine,SYNTHETIC DEMO DATA (RASPA-like GCMC output; not a real simulation),PASS
 Temperature,298.15 K,PASS
 GCMC Total Cycles,4000 cycles,PASS
 Optimal Burn-in Cutoff,1500 cycles (37.5%),PASS
