@@ -8,7 +8,8 @@ import argparse
 import numpy as np
 
 from adsorpqc import __version__
-from adsorpqc.parsers.raspa import parse_raspa_output
+from adsorpqc.core.burnin import detect_gcmc_burnin
+from adsorpqc.parsers.raspa import parse_raspa_output, collect_raspa_isotherm
 from adsorpqc.parsers.generic_isotherm import parse_isotherm_csv
 from adsorpqc.core.scoring import assess_adsorption_quality
 from adsorpqc.reporters.plot_generator import generate_adsorption_figures
@@ -118,7 +119,7 @@ def run_demo(output_dir: str = "adsorpqc_demo_output"):
         bm = report.isotherm_fits["best_model"]
         print(f" * Optimal Model     : {bm.model_name} (R^2 = {bm.r_squared:.4f}, RMSE = {bm.rmse:.4f})")
     if report.henry_data:
-        print(f" * Henry Const (K_H) : {report.henry_data['henry_constant']:.4e} mol/kg/Pa (R^2 = {report.henry_data['r_squared']:.3f})")
+        print(f" * Henry Const (K_H) : {report.henry_data['henry_constant']:.4e} (loading/pressure units, R^2 = {report.henry_data['r_squared']:.3f})")
     if report.isosteric_heat_kj_mol:
         print(f" * Isosteric Heat qst: {report.isosteric_heat_kj_mol:.2f} kJ/mol")
     if report.iast_selectivity:
@@ -154,12 +155,39 @@ def run_assess(args):
         "engine": "User Input"
     }
     
-    if input_file.endswith(".data") or "output_" in input_file:
+    gcmc_molecules = None
+    energy_unit = "kJ/mol"
+    raspa_summary = []
+    widom_kh = None
+    if os.path.isdir(input_file):
+        # A folder of RASPA runs, one pressure each (plus optional Widom runs): build the isotherm
+        iso = collect_raspa_isotherm([input_file])
+        if len(iso["pressure_pa"]) == 0:
+            print(f"[Error] No RASPA GCMC outputs with a pressure and a loading found under {input_file}", file=sys.stderr)
+            sys.exit(1)
+        pressures = iso["pressure_pa"] / 1e5          # bar
+        meta["henry_unit"] = "mol/kg/bar"
+        loadings = iso["loading_mol_kg"]
+        first = iso["outputs"][0]["metadata"]
+        for k in ("framework", "adsorbate", "temperature_k", "engine"):
+            if first.get(k) is not None and not getattr(args, k if k != "temperature_k" else "temp", None):
+                meta[k] = first[k]
+        for d in iso["outputs"]:
+            b = detect_gcmc_burnin(d["cycle_loadings"]) if d["cycle_loadings"] is not None else None
+            raspa_summary.append((d["metadata"]["pressure_pa"], d["loading_mol_kg"], d["loading_mol_kg_err"],
+                                  d["isosteric_heat_kj_mol"], b.status if b else "n/a"))
+        if iso["widom"]:
+            widom_kh = (iso["widom"][0]["henry_coefficient"], iso["widom"][0]["henry_coefficient_err"])
+    elif input_file.endswith(".data") or "output_" in os.path.basename(input_file):
         parsed_raspa = parse_raspa_output(input_file)
-        meta.update(parsed_raspa["metadata"])
+        meta.update({k: v for k, v in parsed_raspa["metadata"].items() if v is not None})
         if parsed_raspa["cycle_loadings"] is not None:
             gcmc_loadings = parsed_raspa["cycle_loadings"]
             gcmc_energies = parsed_raspa["cycle_energies"]
+            gcmc_molecules = parsed_raspa.get("cycle_molecules")
+            energy_unit = "K"
+        raspa_summary.append((parsed_raspa["metadata"]["pressure_pa"], parsed_raspa["loading_mol_kg"],
+                              parsed_raspa["loading_mol_kg_err"], parsed_raspa["isosteric_heat_kj_mol"], None))
     else:
         parsed_csv = parse_isotherm_csv(input_file)
         pressures = parsed_csv["pressure"]
@@ -172,8 +200,18 @@ def run_assess(args):
         gcmc_energy_series=gcmc_energies,
         pressure_isotherm=pressures,
         loading_isotherm=loadings,
-        temperature_k=meta.get("temperature_k", 298.15)
+        temperature_k=meta.get("temperature_k") or 298.15,
+        gcmc_molecule_series=gcmc_molecules,
+        energy_unit=energy_unit,
     )
+    # Burn-in of every RASPA run of a folder enters the overall verdict
+    run_status = [st for *_, st in raspa_summary if st in ("PASS", "WARNING", "FAIL")]
+    if "FAIL" in run_status and report.overall_status != "FAIL":
+        report.overall_status = "FAIL"
+        report.validation_score = "ADSORPTION SIMULATION QUALITY = REJECTED (non-stationary GCMC run)"
+    elif "WARNING" in run_status and report.overall_status == "PASS":
+        report.overall_status = "WARNING"
+        report.validation_score = "ADSORPTION SIMULATION QUALITY = ACCEPTABLE WITH WARNINGS (see per-run burn-in)"
     
     print("  -> Generating publication figures...")
     generate_adsorption_figures(
@@ -204,6 +242,18 @@ def run_assess(args):
     if report.isotherm_fits and report.isotherm_fits.get("best_model"):
         bm = report.isotherm_fits["best_model"]
         print(f" * Optimal Model     : {bm.model_name} (R^2 = {bm.r_squared:.4f})")
+    if report.henry_data:
+        unit = meta.get("henry_unit", "loading/pressure units of the input")
+        print(f" * Henry Const (K_H) : {report.henry_data['henry_constant']:.4e} {unit} (virial extrapolation)")
+    if raspa_summary:
+        print(" * RASPA runs        : P [Pa]      loading [mol/kg]        q_st [kJ/mol]  burn-in")
+        for p_pa, q, dq, qst, st in raspa_summary:
+            qs = f"{qst:6.2f}" if qst is not None else "   n/a"
+            print(f"                       {p_pa:<10.4g}  {q:.5f} +/- {dq or 0:.5f}   {qs}         {st or ''}")
+    if report.henry_data and widom_kh:
+        kh_iso = report.henry_data["henry_constant"] / 1e5      # mol/kg/bar -> mol/kg/Pa
+        print(f" * Henry coefficient : isotherm {kh_iso:.4e} vs Widom {widom_kh[0]:.4e} +/- {widom_kh[1]:.1e} mol/kg/Pa "
+              f"({(kh_iso / widom_kh[0] - 1) * 100:+.1f}%)")
     print("="*70)
     print(f"\nReport ready at: {os.path.abspath(html_p)}\n")
 
@@ -236,7 +286,7 @@ def main():
     
     # Assess command
     assess_parser = subparsers.add_parser("assess", help="Assess isotherm CSV or RASPA simulation file")
-    assess_parser.add_argument("-i", "--input", required=True, help="Path to isotherm CSV or RASPA output_*.data")
+    assess_parser.add_argument("-i", "--input", required=True, help="Isotherm CSV, a RASPA3/RASPA2 output file, or a folder of RASPA runs (one pressure each; Widom runs are used for K_H)")
     assess_parser.add_argument("-o", "--output", default="adsorpqc_output", help="Directory for output report and assets (default: adsorpqc_output)")
     assess_parser.add_argument("--framework", default=None, help="Framework name (e.g. MOF-5, HKUST-1)")
     assess_parser.add_argument("--adsorbate", default=None, help="Adsorbate gas name (e.g. CO2, CH4, N2)")

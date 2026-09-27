@@ -52,7 +52,11 @@ def _compute_fit_metrics(
     y_pred: np.ndarray,
     k_params: int
 ) -> Tuple[float, float, float, float]:
-    """Computes R^2, RMSE, AIC, and BIC."""
+    """
+    Computes R^2, RMSE, AIC and BIC. The AIC is the small-sample corrected AICc
+    (Hurvich & Tsai 1989), AIC + 2k(k+1)/(n-k-1), since isotherms rarely have n/k > 40;
+    it is infinite when n <= k + 1.
+    """
     n = len(y_obs)
     residuals = y_obs - y_pred
     rss = float(np.sum(residuals ** 2))
@@ -61,9 +65,9 @@ def _compute_fit_metrics(
     r_sq = 1.0 - (rss / ss_tot) if ss_tot > 0 else 0.0
     rmse = np.sqrt(rss / n)
     
-    # AIC = 2k + n * ln(RSS / n)
-    if rss > 0 and n > k_params:
-        aic = 2.0 * k_params + n * np.log(rss / n)
+    # AICc = 2k + n ln(RSS/n) + 2k(k+1)/(n-k-1)
+    if rss > 0 and n > k_params + 1:
+        aic = 2.0 * k_params + n * np.log(rss / n) + 2.0 * k_params * (k_params + 1) / (n - k_params - 1)
         bic = k_params * np.log(n) + n * np.log(rss / n)
     else:
         aic = float("inf")
@@ -181,7 +185,7 @@ def fit_all_isotherm_models(
     loading: np.ndarray
 ) -> Dict[str, Any]:
     """
-    Fits multiple non-linear adsorption models and automatically determines the best model via AIC.
+    Fits the Langmuir, dual-site Langmuir, Sips and Toth models and selects the one with the lowest AICc.
 
     Parameters
     ----------

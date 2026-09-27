@@ -20,15 +20,15 @@ In GCMC simulations, reporting average loadings before reaching true thermodynam
   - Maximizes the number of statistically independent production samples ($N_{\text{eff}}$).
   - Automatically identifies and truncates un-equilibrated initialization cycles.
 - 📉 **Loading Drift & Stationarity Audit**:
-  - Evaluates percentage loading drift $\Delta_{\text{drift}}$ across the production phase.
-  - Generates clear safety alerts: `"DO NOT REPORT PRODUCTION AVERAGE"` if $\Delta_{\text{drift}} > 8.0\%$.
+  - Compares the first and last 20% of the production phase. The drift is flagged only when it is statistically significant against the autocorrelation-corrected noise ($z > 2$ / $z > 3$) and large relative to the mean.
+  - Generates clear safety alerts: `"DO NOT REPORT PRODUCTION AVERAGE"` if the drift is significant ($z > 3$) and larger than 8% of the mean.
 - 🧪 **Non-Linear Isotherm Fitting & Model Selection**:
-  - Fits **Langmuir**, **Dual-Site Langmuir (DSLG)**, **Sips (Langmuir-Freundlich)**, **Toth**, **Freundlich**, and **BET** models.
-  - Automatically ranks models and selects the optimal description using **Akaike Information Criterion (AIC)** and $R^2$.
+  - Fits **Langmuir**, **Dual-Site Langmuir (DSLG)**, **Sips (Langmuir-Freundlich)** and **Toth** models.
+  - Selects the model with the lowest small-sample corrected Akaike Information Criterion (**AICc**), and reports $R^2$ and RMSE.
 - ⚡ **Thermodynamic Energetics & Selectivity**:
-  - **Henry coefficient ($K_H$)** via low-pressure linear regression.
-  - **Isosteric heat of adsorption ($q_{\text{st}}$)** via particle-energy fluctuation formulas in $\mu VT$ ensemble.
-  - **Ideal Adsorbed Solution Theory (IAST)** binary mixture selectivity ($S_{A/B}$) with **95% Bootstrap Confidence Intervals**.
+  - **Henry coefficient ($K_H$)**, obtained by extrapolating $q/P$ to zero loading. On RASPA3 methane/MFI data it agrees with Widom insertion within 0.1%.
+  - **Isosteric heat of adsorption ($q_{\text{st}}$)**, from the $\mu VT$ particle–energy fluctuation formula. It needs the number of molecules and the energy with explicit units; RASPA3's own value is read when available.
+  - **Ideal Adsorbed Solution Theory (IAST)** binary mixture selectivity ($S_{A/B}$) with **95% Bootstrap Confidence Intervals**. This part has not yet been validated against an independent IAST implementation.
 - 📑 **Publication Deliverables**:
   - Interactive self-contained `report.html` dashboard.
   - Vector publication plots (Isotherm fit curves, GCMC burn-in shaded trajectory) in SVG, PDF, PNG (300 DPI).
@@ -93,7 +93,10 @@ adsorpqc assess -i my_isotherm.csv --framework "Mg-MOF-74" --adsorbate "CO2" --t
 
 ### 3. Assess RASPA Simulation Output
 ```bash
-adsorpqc assess -i output_Mg-MOF-74_298.000000_100000.data -o raspa_audit/
+# one RASPA3 run (output/output_<T>_<P>.s0.txt) or RASPA2 run (output_*.data)
+adsorpqc assess -i output/output_300_1e+05.s0.txt -o raspa_audit/
+# a folder of RASPA runs, one pressure each; Widom runs are compared with the isotherm K_H
+adsorpqc assess -i runs/ -o raspa_isotherm/
 ```
 
 ---

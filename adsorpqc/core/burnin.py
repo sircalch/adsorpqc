@@ -69,19 +69,20 @@ def estimate_tau_int(series: np.ndarray, c_window: float = 6.0) -> Tuple[float, 
 def assess_loading_drift(
     production_series: np.ndarray,
     warn_threshold_pct: float = 3.0,
-    fail_threshold_pct: float = 8.0
+    fail_threshold_pct: float = 8.0,
+    z_warn: float = 2.0,
+    z_fail: float = 3.0,
 ) -> Tuple[float, float, float, str, str]:
     """
-    Computes percentage loading drift between the initial 20% and final 20% of production.
+    Drift between the first and last 20% of the production phase, judged both statistically and
+    in magnitude.
 
-    Parameters
-    ----------
-    production_series : np.ndarray
-        Adsorbate loading values in production regime.
-    warn_threshold_pct : float, default 3.0
-        Drift warning threshold.
-    fail_threshold_pct : float, default 8.0
-        Drift rejection threshold.
+    The difference of the two segment means is compared with its standard error. The segment
+    standard errors use the scatter and the statistical inefficiency of the linearly detrended
+    series, so that a genuine trend is not absorbed into the noise estimate and pure noise in a
+    short or low-loading run is not mistaken for drift. A drift is reported only when it is both
+    significant (z above z_warn / z_fail) and large relative to the mean (above the percentage
+    thresholds).
 
     Returns
     -------
@@ -91,25 +92,33 @@ def assess_loading_drift(
     n = len(y)
     if n < 10:
         mean_all = float(np.mean(y)) if n > 0 else 0.0
-        return 0.0, mean_all, mean_all, "PASS", "Too few cycles to evaluate drift."
-        
+        return 0.0, mean_all, mean_all, "PASS", "Too few samples to evaluate drift."
+
     n_seg = max(2, int(0.20 * n))
     mean_init = float(np.mean(y[:n_seg]))
     mean_final = float(np.mean(y[-n_seg:]))
     mean_prod = float(np.mean(y))
-    
-    scale = max(abs(mean_prod), float(np.std(y, ddof=1)), 1e-5)
-    drift_pct = (abs(mean_final - mean_init) / scale) * 100.0
-    
-    if drift_pct <= warn_threshold_pct:
-        status = "PASS"
-        msg = f"Stationary production phase verified (Loading drift = {drift_pct:.2f}% <= {warn_threshold_pct}%)."
-    elif drift_pct <= fail_threshold_pct:
-        status = "WARNING"
-        msg = f"Moderate loading drift observed (Loading drift = {drift_pct:.2f}%). Consider extending equilibration cycles."
-    else:
+
+    t = np.arange(n, dtype=float)
+    resid = y - np.polyval(np.polyfit(t, y, 1), t)
+    sd = float(np.std(resid, ddof=2))
+    _, g = estimate_tau_int(resid)
+    se_seg = sd * np.sqrt(g / n_seg)
+    diff = abs(mean_final - mean_init)
+    z = diff / (np.sqrt(2.0) * se_seg) if se_seg > 0 else (np.inf if diff > 0 else 0.0)
+    drift_pct = diff / max(abs(mean_prod), 1e-12) * 100.0 if mean_prod != 0 else (0.0 if diff == 0 else np.inf)
+
+    if z > z_fail and drift_pct > fail_threshold_pct:
         status = "FAIL"
-        msg = f"CRITICAL: Significant loading drift ({drift_pct:.2f}% > {fail_threshold_pct}%). DO NOT REPORT PRODUCTION AVERAGE: GCMC remained in non-equilibrium state."
+        msg = (f"CRITICAL: significant loading drift ({drift_pct:.2f}% of the mean, z = {z:.1f}). "
+               "DO NOT REPORT PRODUCTION AVERAGE: GCMC remained in a non-equilibrium state.")
+    elif z > z_warn and drift_pct > warn_threshold_pct:
+        status = "WARNING"
+        msg = f"Loading drift detected ({drift_pct:.2f}% of the mean, z = {z:.1f}). Consider extending equilibration cycles."
+    else:
+        status = "PASS"
+        msg = (f"Stationary production phase (first/last 20% differ by {drift_pct:.2f}% of the mean, "
+               f"z = {z:.1f}, within statistical noise or below {warn_threshold_pct}%).")
 
     return float(drift_pct), mean_init, mean_final, status, msg
 

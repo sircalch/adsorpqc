@@ -38,7 +38,9 @@ def assess_adsorption_quality(
     gas_mixture: Optional[Dict[str, float]] = None,
     isotherm_b_pressure: Optional[np.ndarray] = None,
     isotherm_b_loading: Optional[np.ndarray] = None,
-    temperature_k: float = 298.15
+    temperature_k: float = 298.15,
+    gcmc_molecule_series: Optional[np.ndarray] = None,
+    energy_unit: str = "kJ/mol",
 ) -> AdsorptionValidationReport:
     """
     Assesses the quality, statistical stationarity, and thermodynamic consistency of adsorption simulations and isotherms.
@@ -57,6 +59,12 @@ def assess_adsorption_quality(
         Equilibrium loading values across pressures.
     temperature_k : float, default 298.15
         Temperature in Kelvin.
+    gcmc_molecule_series : np.ndarray, optional
+        Number of adsorbed molecules in the simulation box per sample, aligned with
+        gcmc_energy_series. Required for the fluctuation estimate of q_st (a loading in mol/kg
+        would scale the result).
+    energy_unit : {"kJ/mol", "K"}
+        Unit of gcmc_energy_series (RASPA writes U/k_B in K).
 
     Returns
     -------
@@ -75,12 +83,13 @@ def assess_adsorption_quality(
         if burn_res.status != "PASS":
             recommendations.append(burn_res.diagnostic_message)
             
-        # Energetics (q_st)
-        if gcmc_energy_series is not None:
-            # Use production slice for q_st
-            prod_u = gcmc_energy_series[burn_res.n_burnin_cycles:]
-            prod_n = gcmc_loading_series[burn_res.n_burnin_cycles:]
-            q_st = calculate_isosteric_heat(prod_u, prod_n, temperature_k=temperature_k)
+        # Energetics (q_st), from the production slice
+        if gcmc_energy_series is not None and gcmc_molecule_series is not None:
+            prod_u = np.asarray(gcmc_energy_series)[burn_res.n_burnin_cycles:]
+            prod_n = np.asarray(gcmc_molecule_series)[burn_res.n_burnin_cycles:]
+            q_st = calculate_isosteric_heat(prod_u, prod_n, temperature_k=temperature_k, energy_unit=energy_unit)
+            if not np.isfinite(q_st):
+                q_st = None
 
     # 2. Isotherm Fitting & Henry's Law
     iso_res = None

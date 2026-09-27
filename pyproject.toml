@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adsorpqc"
-version = "1.0.0"
+version = "1.1.0"
 description = "Automated Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Toolkit for Adsorption Simulations in Nanoporous Materials"
 readme = "README.md"
 authors = [
