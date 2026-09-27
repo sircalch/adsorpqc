@@ -7,6 +7,7 @@ authors:
     affiliation: "Universidad Estatal de Sonora"
 title: "AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations"
 version: 1.0.0
+doi: 10.5281/zenodo.22217574
 date-released: 2026-08-31
 url: "https://github.com/sircalch/adsorpqc"
 repository-code: "https://github.com/sircalch/adsorpqc"

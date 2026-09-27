@@ -4,7 +4,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/adsorpqc.svg?color=blue)](https://pypi.org/project/adsorpqc/)
 [![Python versions](https://img.shields.io/pypi/pyversions/adsorpqc.svg)](https://pypi.org/project/adsorpqc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1234570.svg)](https://doi.org/10.5281/zenodo.1234570)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22217574.svg)](https://doi.org/10.5281/zenodo.22217574)
 
 > **Automated Quality-Control, GCMC Burn-in Detection, Isotherm Model Fitting, and Reproducibility Toolkit for Adsorption Simulations in Nanoporous Materials.**
 
