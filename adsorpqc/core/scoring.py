@@ -113,7 +113,8 @@ def assess_adsorption_quality(
         iast_res = calculate_iast_selectivity(
             pressure_isotherm, loading_isotherm,
             isotherm_b_pressure, isotherm_b_loading,
-            gas_mole_fraction_a=ya, gas_mole_fraction_b=yb
+            gas_mole_fraction_a=ya, gas_mole_fraction_b=yb,
+            total_pressure=gas_mixture.get("total_pressure", 1.0) if gas_mixture else 1.0
         )
 
     # Overall scoring

@@ -46,6 +46,13 @@ adsorption.
   IAST has not yet been validated against an independent implementation, and that the RASPA2 patterns
   have not been checked against real RASPA2 output.
 
+- **IAST was not IAST.** `calculate_iast_selectivity` returned (q_sat,A K_A)/(q_sat,B K_B), the
+  Henry-limit selectivity, and ignored pressure and composition. It now solves binary IAST with
+  equal reduced spreading pressures for any fitted model (`iast_binary`). It agrees with pyIAST 1.4
+  to within 3·10⁻¹² in relative terms, and exactly with extended Langmuir when both saturation
+  capacities are equal. On model isotherms, the old value was up to 7 times too high at high pressure.
+- The RASPA3 parser reads the loading of every component of a mixture (`components`).
+
 ### Added
 - `collect_raspa_isotherm()`.
 - The `energy_unit` and `gcmc_molecule_series` arguments.

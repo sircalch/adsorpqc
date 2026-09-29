@@ -52,6 +52,20 @@ def _parse_raspa3(content: str, meta: Dict[str, Any]) -> Dict[str, Any]:
                 out[f"{key}_{suffix}"] = float(m.group(1))
                 out[f"{key}_{suffix}_err"] = float(m.group(2))
 
+    # Per-component absolute loadings (mixtures): the LoadingData section lists every component
+    comps = []
+    i0 = content.find("LoadingData")
+    if i0 >= 0:
+        sec = content[i0:]
+        heads = list(re.finditer(r"^Component (\d+) \(([^)]+)\)", sec, re.M))
+        for k, h in enumerate(heads):
+            blk = sec[h.end(): heads[k + 1].start() if k + 1 < len(heads) else len(sec)]
+            m = re.search(rf"Abs\. loading average\s+({_NUM}) \+/-\s+({_NUM}) \[mol/kg-framework\]", blk)
+            if m:
+                comps.append({"index": int(h.group(1)), "name": h.group(2),
+                              "loading_mol_kg": float(m.group(1)), "loading_mol_kg_err": float(m.group(2))})
+    out["components"] = comps
+
     # Enthalpy of adsorption (GCMC fluctuation formula). RASPA3 prints Delta H (negative);
     # the isosteric heat is Q_st = -Delta H.
     m = _search(rf"Enthalpy of adsorption:\s+{_NUM} \+/-\s+{_NUM} \[K\]\s*\n\s*({_NUM}) \+/-\s+({_NUM}) \[kJ/mol\]", content)
@@ -181,6 +195,7 @@ def parse_raspa_output(filepath: str) -> Dict[str, Any]:
         "cycle_loadings": d.get("cycle_loadings"),
         "cycle_energies": d.get("cycle_energies"),
         "cycle_molecules": d.get("cycle_molecules"),
+        "components": d.get("components", []),       # per-component loadings (RASPA3 mixtures)
         "n_init_snapshots": d.get("n_init_snapshots"),
     }
 

@@ -1,10 +1,67 @@
 """
-Ideal Adsorbed Solution Theory (IAST) and binary selectivity with bootstrap uncertainty.
+Ideal Adsorbed Solution Theory (IAST; Myers & Prausnitz, AIChE J. 11, 121, 1965) for binary
+mixtures, from fitted single-component isotherms, with bootstrap uncertainty.
+
+For gas-phase mole fractions y_i at total pressure P, IAST finds adsorbed-phase mole fractions x_i
+and pure-component pressures P_i^0 such that
+
+    P y_i = P_i^0 x_i          and      pi_1(P_1^0) = pi_2(P_2^0),
+    pi_i(P^0) = int_0^{P^0} q_i(p) / p dp       (reduced spreading pressure),
+
+and the total loading is 1 / q_T = sum_i x_i / q_i(P_i^0). The selectivity is
+S_12 = (x_1 / x_2) / (y_1 / y_2). Versions before 1.1.0 returned (q_sat,1 K_1) / (q_sat,2 K_2) under
+this name, which is the Henry-limit selectivity and ignores pressure and composition.
 """
 
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Callable, Optional
 import numpy as np
-from adsorpqc.core.isotherms import fit_langmuir, IsothermFitResult
+from scipy.integrate import quad
+from scipy.optimize import brentq
+
+from adsorpqc.core.isotherms import (fit_langmuir, fit_dual_site_langmuir, fit_sips, fit_toth,
+                                     fit_all_isotherm_models, IsothermFitResult)
+
+_FITTERS = {"Langmuir": fit_langmuir, "Dual-Site Langmuir": fit_dual_site_langmuir,
+            "Sips": fit_sips, "Toth": fit_toth}
+
+
+def reduced_spreading_pressure(q: Callable[[float], float], p0: float) -> float:
+    """pi(P^0) = int_0^{P^0} q(p)/p dp, integrated in ln p so that the low-pressure end is resolved."""
+    if p0 <= 0:
+        return 0.0
+    lo = np.log(p0) - 40.0                       # q(p)/p -> K_H: the tail below e^-40 P^0 is negligible
+    val, _ = quad(lambda u: float(q(np.exp(u))), lo, np.log(p0), limit=400)
+    return float(val)
+
+
+def iast_binary(q1: Callable[[float], float], q2: Callable[[float], float], y1: float, total_pressure: float) -> Dict[str, float]:
+    """
+    Solves binary IAST for pure-component isotherms q1(p), q2(p) (same pressure and loading units).
+
+    Returns x1, x2, the component loadings q1_mix, q2_mix, the total loading, the pure-component
+    pressures P1^0, P2^0 and the selectivity S_12.
+    """
+    y2 = 1.0 - y1
+    if not (0.0 < y1 < 1.0) or total_pressure <= 0:
+        raise ValueError("need 0 < y1 < 1 and total_pressure > 0")
+    P = float(total_pressure)
+
+    def f(x1):
+        return reduced_spreading_pressure(q1, P * y1 / x1) - reduced_spreading_pressure(q2, P * y2 / (1.0 - x1))
+
+    eps = 1e-10
+    x1 = brentq(f, eps, 1.0 - eps, xtol=1e-12, maxiter=500)
+    x2 = 1.0 - x1
+    p1, p2 = P * y1 / x1, P * y2 / x2
+    q_total = 1.0 / (x1 / float(q1(p1)) + x2 / float(q2(p2)))
+    return {"x1": x1, "x2": x2, "q1_mix": x1 * q_total, "q2_mix": x2 * q_total, "q_total": q_total,
+            "p1_pure": p1, "p2_pure": p2, "selectivity_12": (x1 / x2) / (y1 / y2)}
+
+
+def _fit(p, q, model: str) -> Optional[IsothermFitResult]:
+    if model == "best":
+        return fit_all_isotherm_models(p, q).get("best_model")
+    return _FITTERS[model](p, q)
 
 
 def calculate_iast_selectivity(
@@ -15,101 +72,67 @@ def calculate_iast_selectivity(
     gas_mole_fraction_a: float = 0.5,
     gas_mole_fraction_b: float = 0.5,
     total_pressure: float = 1.0,
-    n_bootstrap: int = 500
+    n_bootstrap: int = 500,
+    model: str = "best",
+    random_state: int = 42,
 ) -> Dict[str, Any]:
     """
-    Computes binary mixture selectivity S_{A/B} = (x_A / x_B) / (y_A / y_B) and
-    IAST selectivity with 95% bootstrap confidence intervals.
+    Binary IAST selectivity S_A/B = (x_A/x_B)/(y_A/y_B) at the given total pressure and composition.
 
-    Parameters
-    ----------
-    isotherm_a_p, isotherm_a_q : np.ndarray
-        Single-component isotherm data for adsorbate A.
-    isotherm_b_p, isotherm_b_q : np.ndarray
-        Single-component isotherm data for adsorbate B.
-    gas_mole_fraction_a : float, default 0.5
-        Gas phase mole fraction y_A.
-    gas_mole_fraction_b : float, default 0.5
-        Gas phase mole fraction y_B.
-    total_pressure : float, default 1.0
-        Total system pressure.
-    n_bootstrap : int, default 500
-        Number of bootstrap replicates.
+    Each single-component isotherm is fitted (model: "best" = lowest AICc among Langmuir, dual-site
+    Langmuir, Sips and Toth, or one of those names) and IAST is solved with the fitted functions.
+    The 95% interval comes from resampling the isotherm points of each component and repeating the
+    fit and the IAST solution (pairs bootstrap); it reflects the fit uncertainty only.
 
     Returns
     -------
-    result : dict
-        Selectivity value, 95% CI, fitted affinity ratios.
+    dict with selectivity_a_b, ci_lower_95, ci_upper_95, x_a, loadings of both components in the
+    mixture, the models used, and the Henry-limit selectivity for comparison.
     """
+    pa, qa = np.asarray(isotherm_a_p, float), np.asarray(isotherm_a_q, float)
+    pb, qb = np.asarray(isotherm_b_p, float), np.asarray(isotherm_b_q, float)
     y_a = float(gas_mole_fraction_a)
-    y_b = float(gas_mole_fraction_b)
-    
-    # Fit single components
-    fit_a = fit_langmuir(isotherm_a_p, isotherm_a_q)
-    fit_b = fit_langmuir(isotherm_b_p, isotherm_b_q)
-    
-    if fit_a is None or fit_b is None:
-        # Fallback to empirical ratio at closest pressure
-        p_eval = total_pressure * y_a
-        q_a = float(np.interp(p_eval, isotherm_a_p, isotherm_a_q))
-        q_b = float(np.interp(total_pressure * y_b, isotherm_b_p, isotherm_b_q))
-        if q_b > 0 and y_b > 0:
-            sel = (q_a / q_b) / (y_a / y_b)
-        else:
-            sel = 1.0
-        return {
-            "selectivity_a_b": float(sel),
-            "ci_lower_95": float(sel),
-            "ci_upper_95": float(sel),
-            "method": "Empirical Loading Ratio",
-            "k_a": 0.0,
-            "k_b": 0.0
-        }
-        
-    k_a = fit_a.parameters["K"]
-    k_b = fit_b.parameters["K"]
-    q_sat_a = fit_a.parameters["q_sat"]
-    q_sat_b = fit_b.parameters["q_sat"]
-    
-    # Langmuirian IAST selectivity S_AB = (q_sat_A * K_A) / (q_sat_B * K_B) or K_A / K_B
-    selectivity_nominal = (k_a / (k_b + 1e-12)) * (q_sat_a / (q_sat_b + 1e-12))
-    
-    # Bootstrap uncertainty
-    n_a = len(isotherm_a_p)
-    n_b = len(isotherm_b_p)
-    rng = np.random.default_rng(42)
-    
-    boot_sels = []
-    for _ in range(n_bootstrap):
-        idx_a = rng.choice(n_a, size=n_a, replace=True)
-        idx_b = rng.choice(n_b, size=n_b, replace=True)
-        
-        b_fit_a = fit_langmuir(isotherm_a_p[idx_a], isotherm_a_q[idx_a])
-        b_fit_b = fit_langmuir(isotherm_b_p[idx_b], isotherm_b_q[idx_b])
-        
-        if b_fit_a and b_fit_b:
-            ka = b_fit_a.parameters["K"]
-            kb = b_fit_b.parameters["K"]
-            qsa = b_fit_a.parameters["q_sat"]
-            qsb = b_fit_b.parameters["q_sat"]
-            s_val = (ka / (kb + 1e-12)) * (qsa / (qsb + 1e-12))
-            if 0 < s_val < 1e6:
-                boot_sels.append(s_val)
+    if gas_mole_fraction_b is not None and abs(y_a + float(gas_mole_fraction_b) - 1.0) > 1e-9:
+        raise ValueError("gas-phase mole fractions must add up to 1 for a binary mixture")
 
-    if boot_sels:
-        ci_low = float(np.percentile(boot_sels, 2.5))
-        ci_high = float(np.percentile(boot_sels, 97.5))
-    else:
-        ci_low = selectivity_nominal
-        ci_high = selectivity_nominal
+    fa, fb = _fit(pa, qa, model), _fit(pb, qb, model)
+    if fa is None or fb is None:
+        raise ValueError("single-component isotherm fit failed; IAST needs a fitted model for both components")
+    sol = iast_binary(fa.fitted_function, fb.fitted_function, y_a, total_pressure)
+
+    # Henry-limit selectivity (the quantity returned by versions < 1.1.0)
+    h = 1e-9 * max(pa.max(), pb.max())
+    henry_sel = float(fa.fitted_function(h) / h) / float(fb.fitted_function(h) / h)
+
+    rng = np.random.default_rng(random_state)
+    boot = []
+    for _ in range(n_bootstrap):
+        ia = rng.choice(len(pa), size=len(pa), replace=True)
+        ib = rng.choice(len(pb), size=len(pb), replace=True)
+        if len(np.unique(ia)) < 3 or len(np.unique(ib)) < 3:
+            continue
+        ba, bb = _fit(pa[ia], qa[ia], fa.model_name), _fit(pb[ib], qb[ib], fb.model_name)
+        if ba is None or bb is None:
+            continue
+        try:
+            boot.append(iast_binary(ba.fitted_function, bb.fitted_function, y_a, total_pressure)["selectivity_12"])
+        except (ValueError, RuntimeError, ZeroDivisionError):
+            continue
+    lo, hi = (float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))) if len(boot) >= 20 else (float("nan"), float("nan"))
 
     return {
-        "selectivity_a_b": float(selectivity_nominal),
-        "ci_lower_95": ci_low,
-        "ci_upper_95": ci_high,
-        "method": "IAST (Langmuirian)",
-        "k_a": float(k_a),
-        "k_b": float(k_b),
-        "q_sat_a": float(q_sat_a),
-        "q_sat_b": float(q_sat_b)
+        "selectivity_a_b": float(sol["selectivity_12"]),
+        "ci_lower_95": lo,
+        "ci_upper_95": hi,
+        "n_bootstrap_ok": len(boot),
+        "method": "IAST",
+        "model_a": fa.model_name,
+        "model_b": fb.model_name,
+        "x_a": sol["x1"],
+        "q_a_mix": sol["q1_mix"],
+        "q_b_mix": sol["q2_mix"],
+        "q_total": sol["q_total"],
+        "henry_limit_selectivity": henry_sel,
+        "total_pressure": float(total_pressure),
+        "y_a": y_a,
     }
