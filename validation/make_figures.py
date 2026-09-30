@@ -228,6 +228,43 @@ def table_pure(iso):
         fh.write("\n".join(lines) + "\n")
 
 
+def si_tables():
+    """Supplementary tables S2-S4 from the known-answer results."""
+    p = pd.read_csv(os.path.join(RES, "iast_vs_pyiast.csv"))
+    lines = [r"\begin{tabular}{lrrrrrr}", r"\toprule",
+             r"Isotherm pair & $y_1$ & $P$ (bar) & $S_{12}$ (IAST) & $S_{12}$ (1.0.0) & max.\ rel.\ difference from pyIAST \\",
+             r"\midrule"]
+    for _, r in p.iterrows():
+        case = r.case.replace("q_sat", r"$q_{\mathrm{sat}}$")
+        lines.append(f"{case} & {r.y1:g} & {r.P_bar:g} & {r.selectivity:.3f} & {r.henry_limit_selectivity:.3f} & "
+                     f"{max(r.rel_diff_q1, r.rel_diff_q2):.1e} " + r"\\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    with open(os.path.join(TAB, "table_s_pyiast.tex"), "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+
+    d = pd.read_csv(os.path.join(RES, "drift_study.csv"))
+    lines = [r"\begin{tabular}{lrrrrrr}", r"\toprule",
+             r"Regime & samples & drift & FAIL (1.0.0) & FAIL (1.1) & flagged (1.0.0) & flagged (1.1) \\",
+             r"\midrule"]
+    for (reg, n, dr), g in d.groupby(["regime", "n", "drift"], sort=False):
+        o, w = g[g.version == "1.0.0"].iloc[0], g[g.version == "1.1"].iloc[0]
+        lines.append(f"{reg} & {n} & {dr:.0%} & {o.fail_rate:.3f} & {w.fail_rate:.3f} & {o.flag_rate:.3f} & {w.flag_rate:.3f} ".replace("%", r"\%") + r"\\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    with open(os.path.join(TAB, "table_s_drift.tex"), "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+
+    m = pd.read_csv(os.path.join(RES, "model_selection_study.csv"))
+    piv = m.pivot_table(index=["truth", "points", "criterion"], columns="selected", values="fraction").reset_index()
+    cols = ["Langmuir", "Sips", "Toth", "Dual-Site Langmuir"]
+    lines = [r"\begin{tabular}{lrlrrrr}", r"\toprule",
+             r"Generating model & points & criterion & Langmuir & Sips & Toth & dual-site Langmuir \\", r"\midrule"]
+    for _, r in piv.iterrows():
+        lines.append(f"{r.truth} & {r.points} & {r.criterion.replace('AICc', 'AIC$_c$')} & " + " & ".join(f"{r[c]:.3f}" for c in cols) + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    with open(os.path.join(TAB, "table_s_models.tex"), "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+
+
 def main():
     for d in (FIG, TAB):
         os.makedirs(d, exist_ok=True)
@@ -238,6 +275,7 @@ def main():
     fig_known()
     table_iast()
     table_pure(iso)
+    si_tables()
     print("figures and tables written")
 
 
