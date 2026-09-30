@@ -40,8 +40,14 @@ adsorption.
   runs gave FAIL, with "drifts" of 10–76 %. A drift is now flagged only if it is significant against
   the autocorrelation-corrected standard error of the detrended series (z > 2 / 3) and above the
   percentage thresholds. No stationary run fails now; a linear ramp still fails.
-- **Model selection** uses the small-sample corrected AICc; the plain AIC favours over-parameterised
-  models on the typical 5–10 isotherm points.
+  In simulated stationary low-loading series (Poisson counts, 40 samples) the 1.0.0 test failed 79 % of
+  them and the 1.1 test 0.5 %; a 20 % drift at high loading is still failed in 90 % of series. A drift
+  of that size at low loading cannot be told from Poisson noise in 40 samples.
+- **Model selection** uses the small-sample corrected AICc. In a simulation study with 7 isotherm
+  points and 1 % noise (`validation/known_answer_studies.py`), AICc recovered a true Langmuir isotherm
+  in 91 % of cases, against 59 % for the plain AIC. It recovered a true dual-site Langmuir isotherm in
+  only 31 % of cases (AIC: 91 %), preferring Toth. With 12 points it recovered it in 90 %.
+  Four-parameter models therefore need about ten or more points.
 - **README.** It no longer claims Freundlich and BET fits, which are not performed. It states that
   IAST has not yet been validated against an independent implementation, and that the RASPA2 patterns
   have not been checked against real RASPA2 output.
