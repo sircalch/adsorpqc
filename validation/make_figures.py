@@ -52,7 +52,7 @@ def setup():
 
 
 def panel(ax, letter):
-    ax.text(-0.15, 1.03, f"({letter})", transform=ax.transAxes, fontsize=9, fontweight="bold", va="bottom", color=INK)
+    ax.text(-0.18, 1.03, f"({letter})", transform=ax.transAxes, fontsize=9, fontweight="bold", va="bottom", color=INK)
 
 
 def save(fig, name):
@@ -112,7 +112,7 @@ def fig_pure(iso):
             b.text(xi, v - 0.6, f"{v:+.1f}%", ha="center", va="top", fontsize=6.5)
     b.axhline(0, color=INK2, lw=0.6)
     b.set_xticks(x, [r"CO$_2$" if g == "CO2" else r"CH$_4$" for g in h.gas])
-    b.set(ylabel="Henry coefficient vs Widom (%)", ylim=(-27, 4))
+    b.set(ylabel="Henry coeff. vs Widom (%)", ylim=(-27, 4))
     b.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=1)
     panel(b, "b")
     fig.tight_layout(w_pad=2.5)
@@ -187,7 +187,7 @@ def fig_known():
     b.bar(x - 0.18, vals["AIC"], 0.34, color=C["gray"], label="AIC")
     b.bar(x + 0.18, vals["AICc"], 0.34, color=C["CO2"][0], label="AICc")
     b.set_xticks(x, lab)
-    b.set(ylabel="true model selected (fraction)", ylim=(0, 1.05))
+    b.set(ylabel="fraction correct", ylim=(0, 1.05))
     b.legend(loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=2)
     panel(b, "b")
     fig.tight_layout(w_pad=2.5)
