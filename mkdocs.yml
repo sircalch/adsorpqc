@@ -59,8 +59,10 @@ nav:
   - Tutorials:
       - From RASPA output to a report: tutorials/raspa.md
       - Isotherm table, model selection and IAST: tutorials/isotherm-csv.md
+      - 'Worked example: RASPA3 methane in MFI': tutorials/worked-example.md
   - How the checks work: quality-control.md
   - Outputs: outputs.md
   - Validation: validation.md
   - API reference: api.md
   - Citing AdsorpQC: citing.md
+  - Support and contributing: support.md
