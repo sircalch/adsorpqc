@@ -1,0 +1,66 @@
+site_name: AdsorpQC
+site_description: Quality control for the post-processing of adsorption simulations and gas isotherms.
+site_url: https://sircalch.github.io/adsorpqc/
+repo_url: https://github.com/sircalch/adsorpqc
+repo_name: sircalch/adsorpqc
+edit_uri: edit/master/docs/
+copyright: Copyright &copy; 2026 Andrés Monreal Hernández · MIT License
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: false
+            show_root_heading: true
+            heading_level: 3
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Tutorials:
+      - From RASPA output to a report: tutorials/raspa.md
+      - Isotherm table, model selection and IAST: tutorials/isotherm-csv.md
+  - How the checks work: quality-control.md
+  - Outputs: outputs.md
+  - Validation: validation.md
+  - API reference: api.md
+  - Citing AdsorpQC: citing.md
