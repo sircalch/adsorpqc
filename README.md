@@ -26,9 +26,9 @@ In GCMC simulations, reporting average loadings before reaching true thermodynam
   - Fits **Langmuir**, **Dual-Site Langmuir (DSLG)**, **Sips (Langmuir-Freundlich)** and **Toth** models.
   - Selects the model with the lowest small-sample corrected Akaike Information Criterion (**AICc**), and reports $R^2$ and RMSE.
 - ⚡ **Thermodynamic Energetics & Selectivity**:
-  - **Henry coefficient ($K_H$)**, obtained by extrapolating $q/P$ to zero loading. On RASPA3 methane/MFI data it agrees with Widom insertion within 0.1%.
+  - **Henry coefficient ($K_H$)**, obtained by extrapolating $q/P$ to zero loading. On RASPA3 data in MFI it agrees with Widom insertion within 0.2% (0.11% for CH$_4$, 0.16% for CO$_2$), inside the statistical uncertainty of the Widom estimates (about 0.7%); see `validation/results/henry_summary.csv`.
   - **Isosteric heat of adsorption ($q_{\text{st}}$)**, from the $\mu VT$ particle–energy fluctuation formula. It needs the number of molecules and the energy with explicit units; RASPA3's own value is read when available.
-  - **Ideal Adsorbed Solution Theory (IAST)** binary mixture selectivity ($S_{A/B}$) with **95% Bootstrap Confidence Intervals**. This part has not yet been validated against an independent IAST implementation.
+  - **Ideal Adsorbed Solution Theory (IAST)** binary mixture selectivity ($S_{A/B}$) with **95% Bootstrap Confidence Intervals**. Validated against pyIAST (relative difference below $10^{-11}$ across the tested model combinations; `validation/iast_vs_pyiast.py`) and against explicit binary GCMC for CO$_2$/CH$_4$ in MFI (adsorbed amounts within 3.8%; `validation/iast_vs_gcmc.py`).
 - 📑 **Publication Deliverables**:
   - Interactive self-contained `report.html` dashboard.
   - Vector publication plots (Isotherm fit curves, GCMC burn-in shaded trajectory) in SVG, PDF, PNG (300 DPI).
