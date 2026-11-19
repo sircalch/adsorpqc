@@ -56,16 +56,21 @@ dev = [
     "build>=0.10.0",
     "twine>=4.0.0"
 ]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26"
+]
 
 [project.scripts]
 adsorpqc = "adsorpqc.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/sircalch/adsorpqc"
-Documentation = "https://github.com/sircalch/adsorpqc#readme"
+Documentation = "https://sircalch.github.io/adsorpqc/"
 Repository = "https://github.com/sircalch/adsorpqc.git"
 "Bug Tracker" = "https://github.com/sircalch/adsorpqc/issues"
-Changelog = "https://github.com/sircalch/adsorpqc/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/sircalch/adsorpqc/blob/master/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["adsorpqc*"]

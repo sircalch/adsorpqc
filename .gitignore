@@ -53,3 +53,6 @@ ENV/
 adsorpqc_output/
 adsorpqc_demo_output/
 *.log
+
+# MkDocs build output
+site/
