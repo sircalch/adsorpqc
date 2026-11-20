@@ -2,6 +2,7 @@
 Manuscript Methods text generator, LaTeX summary tables, and BibTeX citations for AdsorpQC.
 """
 
+from adsorpqc import __version__
 from typing import Dict, Any, Optional
 import os
 import pandas as pd
@@ -89,7 +90,7 @@ def generate_adsorption_manuscript_assets(
         br = report.burnin_result
         gcmc_sentence = (
             f"Adsorption equilibrium in {fw_str} was simulated using Grand Canonical Monte Carlo (GCMC). "
-            f"Equilibration and statistical stationarity were validated using AdsorpQC v1.0.0 (Monreal-Hernández, 2026). "
+            f"Equilibration and statistical stationarity were validated using AdsorpQC v{__version__} (Monreal-Hernández, 2026). "
             f"The initial {br.n_burnin_cycles} cycles ({br.burnin_fraction*100:.1f}%) were discarded as burn-in to eliminate initial state bias, "
             f"yielding an effective sample size of N_eff = {br.n_eff:.0f} independent samples with a loading drift of {br.loading_drift_pct:.2f}%. "
         )
@@ -122,10 +123,10 @@ def generate_adsorption_manuscript_assets(
     # 3. BibTeX Citation
     bib_path = os.path.join(output_dir, "citation.bib")
     bib_content = """@software{monreal2026adsorpqc,
-  author = {Monreal-Hern\\'andez, Andre},
+  author = {Monreal-Hernández, Andrés},
   title = {{AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations}},
   year = {2026},
-  version = {1.0.0},
+  version = {""" + __version__ + """},
   publisher = {Zenodo},
   url = {https://github.com/sircalch/adsorpqc}
 }

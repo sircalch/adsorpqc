@@ -260,16 +260,16 @@ def run_assess(args):
 
 def print_citation():
     bib = """@software{monreal2026adsorpqc,
-  author = {Monreal-Hern\\'andez, Andre},
+  author = {Monreal-Hernández, Andrés},
   title = {{AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations}},
   year = {2026},
-  version = {1.0.0},
+  version = {""" + __version__ + """},
   publisher = {Zenodo},
   url = {https://github.com/sircalch/adsorpqc}
 }"""
     print("\nIf you use AdsorpQC in your publications, please cite:\n")
     print("APA Style:")
-    print("Monreal-Hernández, A. (2026). AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations (v1.0.0). Zenodo. https://github.com/sircalch/adsorpqc\n")
+    print("Monreal-Hernández, A. (2026). AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations (v" + __version__ + "). Zenodo. https://github.com/sircalch/adsorpqc\n")
     print("BibTeX:")
     print(bib)
     print()

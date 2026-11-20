@@ -349,7 +349,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
 
         <footer>
-            Generated automatically by <strong>AdsorpQC v1.0.0</strong> &bull; Adsorption Quality & Isotherm Certification Toolkit &bull; Monreal-Hernández, 2026.
+            Generated automatically by <strong>AdsorpQC v{{ version }}</strong> &bull; Adsorption Quality & Isotherm Certification Toolkit &bull; Monreal-Hernández, 2026.
         </footer>
     </div>
 
@@ -381,7 +381,8 @@ def generate_adsorption_html_report(
     rendered = template.render(
         report=report,
         methods_text=methods_text,
-        citation_bib=citation_bib
+        citation_bib=citation_bib,
+        version=__import__("adsorpqc").__version__
     )
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(rendered)
