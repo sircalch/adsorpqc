@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Documentation site with tutorials, an explanation of every check, validation results and API reference: <https://sircalch.github.io/adsorpqc/> (#6).
+- Worked example `examples/raspa3_to_report.py`: from the bundled RASPA3 methane/MFI runs to a full report, with a walkthrough in the documentation (#8).
+- Support and governance statement in `CONTRIBUTING.md`, linked from the README and the documentation (#7).
+
+### Changed
+- README states the validation results as measured: Henry coefficient within 0.2 % of Widom insertion; IAST validated against pyIAST and binary GCMC (#4, #5).
+
 ## 1.1.0 (2026-09-27)
 
 Validated against real RASPA3 3.0.29 simulations of methane in silicalite-1 (MFI) at 300 K

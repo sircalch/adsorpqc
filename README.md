@@ -131,6 +131,14 @@ generate_adsorption_html_report(report, "output_dir/report.html")
 
 ---
 
+## Documentation and help
+
+- Full documentation, tutorials and API reference: <https://sircalch.github.io/adsorpqc/>
+- Questions and bug reports: [issue tracker](https://github.com/sircalch/adsorpqc/issues)
+- Support, contribution and governance: [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) · [`SECURITY.md`](SECURITY.md)
+
+---
+
 ## Citation
 
 If you use AdsorpQC in your publications, please cite:
