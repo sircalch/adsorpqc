@@ -3,8 +3,8 @@ AdsorpQC: Automated Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, a
 Reproducibility Assessment for Adsorption Simulations.
 """
 
-__version__ = "1.2.0"
-__author__ = "Andres Monreal-Hernández"
+__version__ = "1.2.1"
+__author__ = "Andrés Monreal-Hernández"
 __license__ = "MIT"
 
 from adsorpqc.core.burnin import (
