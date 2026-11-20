@@ -148,7 +148,7 @@ If you use AdsorpQC in your publications, please cite:
   author = {Monreal-Hern{\'a}ndez, Andr{\'e}s},
   title = {{AdsorpQC: An Open-Source Toolkit for Quality-Control, GCMC Burn-in Detection, Isotherm Fitting, and Reproducibility Assessment of Adsorption Simulations}},
   year = {2026},
-  version = {1.1.0},
+  version = {1.2.0},
   publisher = {Zenodo},
   doi = {10.5281/zenodo.22217574},
   url = {https://github.com/sircalch/adsorpqc}
