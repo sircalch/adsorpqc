@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 (2026-11-19)
+
+Documentation and accuracy release. No change to the numerical methods or their results.
 
 ### Added
 - Documentation site with tutorials, an explanation of every check, validation results and API reference: <https://sircalch.github.io/adsorpqc/> (#6).
